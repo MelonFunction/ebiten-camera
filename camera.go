@@ -130,8 +130,8 @@ func (c *Camera) GetWorldCoords(x, y float64) (float64, float64) {
 	return x + c.X, y + c.Y
 }
 
-// GetMouseCoords converts mouse/screen coords into world coords
-func (c *Camera) GetMouseCoords() (float64, float64) {
+// GetCursorCoords converts cursor/screen coords into world coords
+func (c *Camera) GetCursorCoords() (float64, float64) {
 	cx, cy := ebiten.CursorPosition()
 	return c.GetWorldCoords(float64(cx), float64(cy))
 }

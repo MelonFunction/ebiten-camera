@@ -15,7 +15,7 @@ import (
 	camera "github.com/scarycoffee/ebiten-camera"
 )
 
-// Vars
+// Organization is bad, but it's a messy example to test camera functions
 var (
 	cam    *camera.Camera
 	tiles  *ebiten.Image
@@ -35,11 +35,12 @@ var (
 	MouseDownStartY int
 	MouseDownAt     time.Time
 	MousePanAfter   = time.Millisecond * 100
+	mx, my          float64 // mouse tile position
+	px, py          int     // player tile position
 
-	ErrNormalExit = errors.New("Normal exit")
-
-	PlayerSize  int
-	TileSize    int
+	// Level and tile vars
+	TileSize    = 100
+	PlayerSize  = 75
 	LevelWidth  = 30
 	LevelHeight = 5
 	Level       = []int{
@@ -50,6 +51,7 @@ var (
 		1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
 	}
 
+	// Player vars
 	PlayerX float64 = 400.0
 	PlayerY float64
 	VelX    float64
@@ -58,8 +60,7 @@ var (
 	JumpVel = -40.0
 	Jumping = false
 
-	mx, my float64
-	px, py int
+	ErrNormalExit = errors.New("Normal exit")
 )
 
 // Game required by ebiten
@@ -67,7 +68,6 @@ type Game struct{}
 
 // Update updates the Game
 func (g *Game) Update() error {
-
 	VelX = 0
 	if !Jumping {
 		VelY = 0
@@ -98,7 +98,7 @@ func (g *Game) Update() error {
 		VelY += Gravity
 
 		// Cursor tile position
-		mx, my = cam.GetMouseCoords()
+		mx, my = cam.GetCursorCoords()
 		my = float64((int(my)) / int(TileSize))
 		mx = float64((int(mx)) / int(TileSize))
 
@@ -138,17 +138,25 @@ func (g *Game) Update() error {
 			// Pan when pressed for long enough
 			if time.Now().Sub(MouseDownAt) > MousePanAfter && !CamFollowPlayer {
 				cam.MovePosition(
-					float64(LastMouseX)-float64(cx),
-					float64(LastMouseY)-float64(cy))
+					(float64(LastMouseX)-float64(cx))*1/cam.Scale,
+					(float64(LastMouseY)-float64(cy))*1/cam.Scale)
 			}
 		}
 
 	} else if MouseWasDown {
 		MouseWasDown = false
 		// Only call mouse up event if the cursor didn't move more than a certain amount
-		triggerMoveAmount := 1.0
+		triggerMoveAmount := float64(TileSize) / 4.0
 		if math.Abs(float64(MouseDownStartX-cx)) < triggerMoveAmount && math.Abs(float64(MouseDownStartY-cy)) < triggerMoveAmount {
-
+			index := int(my)*LevelWidth + int(mx)
+			if index >= 0 && index < LevelWidth*LevelHeight {
+				switch Level[index] {
+				case 0:
+					Level[index] = 1
+				case 1:
+					Level[index] = 0
+				}
+			}
 		}
 	}
 
@@ -168,27 +176,21 @@ func (g *Game) Update() error {
 
 // Draw renders everything to screen
 func (g *Game) Draw(screen *ebiten.Image) {
+	// Draw tiles image
+	tiles = ebiten.NewImage(TileSize*LevelWidth, TileSize*LevelHeight)
 
-	w, _ := ebiten.WindowSize()
-	if tiles == nil {
-		// Draw tiles image
-		TileSize = w / 10
-		tiles = ebiten.NewImage(TileSize*LevelWidth, TileSize*LevelHeight)
-		PlayerSize = int(float64(TileSize) * 0.75)
-
-		for y := 0; y < LevelHeight; y++ {
-			for x := 0; x < LevelWidth; x++ {
-				switch Level[y*LevelWidth+x] {
-				case 0:
-				case 1:
-					ebitenutil.DrawRect(
-						tiles,
-						float64(x*TileSize),
-						float64(y*TileSize),
-						float64(TileSize),
-						float64(TileSize),
-						color.RGBA{0, 255, 0, 255})
-				}
+	for y := 0; y < LevelHeight; y++ {
+		for x := 0; x < LevelWidth; x++ {
+			switch Level[y*LevelWidth+x] {
+			case 0:
+			case 1:
+				ebitenutil.DrawRect(
+					tiles,
+					float64(x*TileSize),
+					float64(y*TileSize),
+					float64(TileSize),
+					float64(TileSize),
+					color.RGBA{0, 255, 0, 255})
 			}
 		}
 	}
