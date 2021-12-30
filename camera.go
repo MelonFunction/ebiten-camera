@@ -9,17 +9,20 @@ import (
 // Camera can look at positions, zoom and rotate.
 type Camera struct {
 	X, Y, Rot, Scale float64
+	Width, Height    int
 	Surface          *ebiten.Image
 }
 
 // NewCamera returns a new Camera
-func NewCamera(x, y, rotation, zoom float64) *Camera {
+func NewCamera(width, height int, x, y, rotation, zoom float64) *Camera {
 	return &Camera{
 		X:       x,
 		Y:       y,
+		Width:   width,
+		Height:  height,
 		Rot:     rotation,
 		Scale:   zoom,
-		Surface: ebiten.NewImage(ebiten.WindowSize()),
+		Surface: ebiten.NewImage(width, height),
 	}
 }
 
@@ -56,7 +59,7 @@ func (c *Camera) Zoom(mul float64) *Camera {
 	if c.Scale <= 0.01 {
 		c.Scale = 0.01
 	}
-	c.Resize(ebiten.WindowSize())
+	c.Resize(c.Width, c.Height)
 	return c
 }
 
@@ -66,12 +69,14 @@ func (c *Camera) SetZoom(zoom float64) *Camera {
 	if c.Scale <= 0.01 {
 		c.Scale = 0.01
 	}
-	c.Resize(ebiten.WindowSize())
+	c.Resize(c.Width, c.Height)
 	return c
 }
 
 // Resize resizes the camera Surface
 func (c *Camera) Resize(w, h int) *Camera {
+	c.Width = w
+	c.Height = h
 	newW := int(float64(w) * 1.0 / c.Scale)
 	newH := int(float64(h) * 1.0 / c.Scale)
 	if newW <= 16384 && newH <= 16384 {
@@ -108,7 +113,7 @@ func (c *Camera) Blit(screen *ebiten.Image) {
 
 // GetScreenCoords converts world coords into screen coords
 func (c *Camera) GetScreenCoords(x, y float64) (float64, float64) {
-	w, h := ebiten.WindowSize()
+	w, h := c.Width, c.Height
 	co := math.Cos(c.Rot)
 	si := math.Sin(c.Rot)
 
@@ -120,7 +125,7 @@ func (c *Camera) GetScreenCoords(x, y float64) (float64, float64) {
 
 // GetWorldCoords converts screen coords into world coords
 func (c *Camera) GetWorldCoords(x, y float64) (float64, float64) {
-	w, h := ebiten.WindowSize()
+	w, h := c.Width, c.Height
 	co := math.Cos(-c.Rot)
 	si := math.Sin(-c.Rot)
 

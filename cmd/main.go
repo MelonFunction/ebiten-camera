@@ -202,6 +202,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	// Clear camera surface
 	cam.Surface.Clear()
+	cam.Surface.Fill(color.RGBA{255, 0, 0, 128})
 	// Draw tiles
 	cam.Surface.DrawImage(tiles, cam.GetTranslation(0, 0))
 	// Draw the player
@@ -212,9 +213,9 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	ebitenutil.DebugPrint(screen,
 		fmt.Sprintf(
-			"Camera:\n  X: %3.3f\n  Y: %3.3f\n  Rot: %3.3f\n  Zoom: %3.3f\n"+
+			"Camera:\n  X: %3.3f\n  Y: %3.3f\n  W: %d\n  H: %d\n  Rot: %3.3f\n  Zoom: %3.3f\n"+
 				"Tiles:\n  PlayerX: %d\n  PlayerY: %d\n  MouseX: %1.0f\n  MouseY: %1.0f",
-			cam.X, cam.Y, cam.Rot, cam.Scale,
+			cam.X, cam.Y, cam.Surface.Bounds().Size().X, cam.Surface.Bounds().Size().Y, cam.Rot, cam.Scale,
 			px, py, mx, my,
 		))
 }
@@ -232,11 +233,12 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeigh
 func main() {
 	log.SetFlags(log.Lshortfile)
 
-	ebiten.SetWindowSize(640*2, 480*2)
+	w, h := 640*2, 480*2
+	ebiten.SetWindowSize(w, h)
 	ebiten.SetWindowTitle("Camera Test")
 	ebiten.SetWindowResizable(true)
 
-	cam = camera.NewCamera(0, 0, 0, 1)
+	cam = camera.NewCamera(w, h, 0, 0, 0, 1)
 
 	game := &Game{}
 

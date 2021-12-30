@@ -1,6 +1,6 @@
 # ebiten-camera
 
-A simple camera implementation based on [vrld's HUMP for Love2d](https://github.com/vrld/hump)
+A simple camera implementation based on [vrld's hump for LÖVE](https://github.com/vrld/hump)
 
 Look at [cmd](https://github.com/scarycoffee/ebiten-camera/tree/master/cmd) to see a very basic implemtation.
 
