@@ -1,4 +1,4 @@
-module github.com/scarycoffee/ebiten-camera
+module github.com/melonfunction/ebiten-camera
 
 go 1.16
 

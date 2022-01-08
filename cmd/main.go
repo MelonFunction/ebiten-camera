@@ -12,7 +12,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 
-	camera "github.com/scarycoffee/ebiten-camera"
+	camera "github.com/melonfunction/ebiten-camera"
 )
 
 // Organization is bad, but it's a messy example to test camera functions
