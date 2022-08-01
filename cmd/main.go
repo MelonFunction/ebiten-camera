@@ -52,13 +52,14 @@ var (
 	}
 
 	// Player vars
-	PlayerX float64 = 400.0
-	PlayerY float64
-	VelX    float64
-	VelY    float64
-	Gravity = 5.0
-	JumpVel = -40.0
-	Jumping = false
+	PlayerX   float64 = 400.0
+	PlayerY   float64
+	PlayerRot float64
+	VelX      float64
+	VelY      float64
+	Gravity   = 5.0
+	JumpVel   = -40.0
+	Jumping   = false
 
 	ErrNormalExit = errors.New("Normal exit")
 )
@@ -68,6 +69,8 @@ type Game struct{}
 
 // Update updates the Game
 func (g *Game) Update() error {
+	PlayerRot += math.Pi / 200
+
 	VelX = 0
 	if !Jumping {
 		VelY = 0
@@ -208,11 +211,16 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	// Clear camera surface
 	cam.Surface.Clear()
-	cam.Surface.Fill(color.RGBA{255, 0, 0, 128})
+	cam.Surface.Fill(color.RGBA{255, 128, 128, 255})
 	// Draw tiles
-	cam.Surface.DrawImage(tiles, cam.GetTranslation(0, 0))
+	tileOps := &ebiten.DrawImageOptions{}
+	cam.Surface.DrawImage(tiles, cam.GetTranslation(tileOps, 0, 0))
 	// Draw the player
-	cam.Surface.DrawImage(player, cam.GetTranslation(PlayerX, PlayerY))
+	playerOps := &ebiten.DrawImageOptions{}
+	playerOps = cam.GetRotation(playerOps, PlayerRot, -float64(PlayerSize)/2, -float64(PlayerSize)/2)
+	playerOps = cam.GetScale(playerOps, 0.5, 0.5)
+	playerOps = cam.GetTranslation(playerOps, PlayerX, PlayerY)
+	cam.Surface.DrawImage(player, playerOps)
 
 	// Draw to screen and zoom
 	cam.Blit(screen)

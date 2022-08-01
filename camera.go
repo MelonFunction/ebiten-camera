@@ -86,14 +86,27 @@ func (c *Camera) Resize(w, h int) *Camera {
 	return c
 }
 
-// GetTranslation returns the coordinates based on the given x,y offset and the
+// GetTranslation alters the provided *ebiten.DrawImageOptions' translation based on the given x,y offset and the
 // camera's position
-func (c *Camera) GetTranslation(x, y float64) *ebiten.DrawImageOptions {
+func (c *Camera) GetTranslation(ops *ebiten.DrawImageOptions, x, y float64) *ebiten.DrawImageOptions {
 	w, h := c.Surface.Size()
-	op := &ebiten.DrawImageOptions{}
-	op.GeoM.Translate(float64(w)/2, float64(h)/2)
-	op.GeoM.Translate(-c.X+x, -c.Y+y)
-	return op
+	ops.GeoM.Translate(float64(w)/2, float64(h)/2)
+	ops.GeoM.Translate(-c.X+x, -c.Y+y)
+	return ops
+}
+
+// GetRotation alters the provided *ebiten.DrawImageOptions' rotation using the provided originX and originY args
+func (c *Camera) GetRotation(ops *ebiten.DrawImageOptions, rot, originX, originY float64) *ebiten.DrawImageOptions {
+	ops.GeoM.Translate(originX, originY)
+	ops.GeoM.Rotate(rot)
+	ops.GeoM.Translate(-originX, -originY)
+	return ops
+}
+
+// GetScale alters the provided *ebiten.DrawImageOptions' scale
+func (c *Camera) GetScale(ops *ebiten.DrawImageOptions, scaleX, scaleY float64) *ebiten.DrawImageOptions {
+	ops.GeoM.Scale(scaleX, scaleY)
+	return ops
 }
 
 // Blit draws the camera's surface to the screen and applies zoom
@@ -104,8 +117,8 @@ func (c *Camera) Blit(screen *ebiten.Image) {
 	cy := float64(h) / 2.0
 
 	op.GeoM.Translate(-cx, -cy)
-	op.GeoM.Rotate(c.Rot)
 	op.GeoM.Scale(c.Scale, c.Scale)
+	op.GeoM.Rotate(c.Rot)
 	op.GeoM.Translate(cx*c.Scale, cy*c.Scale)
 
 	screen.DrawImage(c.Surface, op)
