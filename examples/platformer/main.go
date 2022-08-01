@@ -217,9 +217,6 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	cam.Surface.DrawImage(tiles, cam.GetTranslation(tileOps, 0, 0))
 	// Draw the player
 	playerOps := &ebiten.DrawImageOptions{}
-	playerOps = cam.GetRotation(playerOps, PlayerRot, -float64(PlayerSize)/2, -float64(PlayerSize)/2)
-	playerOps = cam.GetScale(playerOps, 0.5, 0.5)
-	playerOps = cam.GetSkew(playerOps, 0, -0.5)
 	playerOps = cam.GetTranslation(playerOps, PlayerX, PlayerY)
 	cam.Surface.DrawImage(player, playerOps)
 
@@ -250,7 +247,7 @@ func main() {
 
 	w, h := 640*2, 480*2
 	ebiten.SetWindowSize(w, h)
-	ebiten.SetWindowTitle("Camera Test")
+	ebiten.SetWindowTitle("Platformer example")
 	ebiten.SetWindowResizable(true)
 
 	cam = camera.NewCamera(w, h, 0, 0, 0, 1)

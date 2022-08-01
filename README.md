@@ -2,8 +2,9 @@
 
 A simple camera implementation based on [vrld's hump for LÖVE](https://github.com/vrld/hump)
 
-Look at [cmd](https://github.com/melonfunction/ebiten-camera/tree/master/cmd) to see a very basic implementation.
-Understand that the code is terrible because I wanted to keep the logic as simple as possible 😅
+Look at [the examples](https://github.com/melonfunction/ebiten-camera/tree/master/examples) to see how to use the library.
+
+Run them with `go run examples/cube/main.go` or `go run examples/platformer/main.go`
 
 ## Usage 
 
