@@ -103,8 +103,8 @@ func (c *Camera) Blit(screen *ebiten.Image) {
 	cx := float64(w) / 2.0
 	cy := float64(h) / 2.0
 
-	op.GeoM.Rotate(c.Rot)
 	op.GeoM.Translate(-cx, -cy)
+	op.GeoM.Rotate(c.Rot)
 	op.GeoM.Scale(c.Scale, c.Scale)
 	op.GeoM.Translate(cx*c.Scale, cy*c.Scale)
 

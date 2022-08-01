@@ -92,6 +92,12 @@ func (g *Game) Update() error {
 	if ebiten.IsKeyPressed(ebiten.KeyEscape) {
 		return ErrNormalExit
 	}
+	if ebiten.IsKeyPressed(ebiten.KeyG) {
+		cam.Rotate(math.Pi / 100)
+	}
+	if ebiten.IsKeyPressed(ebiten.KeyR) {
+		cam.Rotate(-math.Pi / 100)
+	}
 
 	// Physics
 	if TileSize != 0 {
