@@ -53,7 +53,6 @@ func (g *Game) Draw(screen *ebiten.Image) {
 ```
 ## Considerations 
 
-### DrawImageOptions ordering 
 1) When setting the `*ebiten.DrawImageOptions` in the `ebitenCamera.Surface.DrawImage` function, the order of **operation is 
 important**!  
 **Rotate**, **Scale** and then **Translate**!
