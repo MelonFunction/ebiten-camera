@@ -44,7 +44,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
     playerOps := &ebiten.DrawImageOptions{}
     playerOps = cam.GetRotation(playerOps, PlayerRot, -float64(PlayerSize)/2, -float64(PlayerSize)/2)
     playerOps = cam.GetScale(playerOps, 0.5, 0.5)
-	playerOps = cam.GetSkew(playerOps, 0, -0.5)
+    playerOps = cam.GetSkew(playerOps, 0, -0.5)
     playerOps = cam.GetTranslation(playerOps, PlayerX, PlayerY)
     cam.Surface.DrawImage(player, playerOps)
     
