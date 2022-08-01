@@ -109,6 +109,12 @@ func (c *Camera) GetScale(ops *ebiten.DrawImageOptions, scaleX, scaleY float64) 
 	return ops
 }
 
+// GetSkew alters the provided *ebiten.DrawImageOptions' skew
+func (c *Camera) GetSkew(ops *ebiten.DrawImageOptions, skewX, skewY float64) *ebiten.DrawImageOptions {
+	ops.GeoM.Skew(skewX, skewY)
+	return ops
+}
+
 // Blit draws the camera's surface to the screen and applies zoom
 func (c *Camera) Blit(screen *ebiten.Image) {
 	op := &ebiten.DrawImageOptions{}

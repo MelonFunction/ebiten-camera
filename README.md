@@ -44,6 +44,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
     playerOps := &ebiten.DrawImageOptions{}
     playerOps = cam.GetRotation(playerOps, PlayerRot, -float64(PlayerSize)/2, -float64(PlayerSize)/2)
     playerOps = cam.GetScale(playerOps, 0.5, 0.5)
+	playerOps = cam.GetSkew(playerOps, 0, -0.5)
     playerOps = cam.GetTranslation(playerOps, PlayerX, PlayerY)
     cam.Surface.DrawImage(player, playerOps)
     
@@ -55,6 +56,6 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 1) When setting the `*ebiten.DrawImageOptions` in the `ebitenCamera.Surface.DrawImage` function, the order of **operation is 
 important**!  
-**Rotate**, **Scale** and then **Translate**!
+**Rotate**, **Scale**, **Skew** and then **Translate**!
 
 2) My example doesn't include a range for the camera's zoom to highlight what happens if you zoom too far in either direction. This is because I use a render texture to draw everything to, and I simply resize this when zooming in or out. This texture has a max size, causing the positioning logic to stop centering it. I'll probably change this at some point (unless you beat me to it with a PR, of course 😆)
