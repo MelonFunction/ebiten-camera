@@ -1,3 +1,4 @@
+// Package camera provides a simple camera system for use with ebiten
 package camera
 
 import (
