@@ -12,7 +12,8 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
-	ebitenCamera "github.com/melonfunction/ebiten-camera"
+
+	camera "github.com/melonfunction/ebiten-camera"
 )
 
 //go:embed sprites.png
@@ -20,7 +21,7 @@ var embedded embed.FS
 
 // vars
 var (
-	camera           *ebitenCamera.Camera
+	cam              *camera.Camera
 	sprites          *ebiten.Image
 	spriteSize       = 16
 	spriteScale      = 8
@@ -88,7 +89,7 @@ func (g *Game) Update() error {
 // Draw draws the game screen.
 // Draw is called every frame (typically 1/60[s] for 60Hz display).
 func (g *Game) Draw(screen *ebiten.Image) {
-	camera.Surface.Clear()
+	cam.Surface.Clear()
 
 	// face logic
 	x, y := -float64(spriteSize*spriteScale)/2, -float64(spriteSize*spriteScale)/2
@@ -114,10 +115,10 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	drawFace := func(p1, p2 *Point, rect image.Rectangle) {
 		op = &ebiten.DrawImageOptions{}
 		op.ColorM.Scale(1, 1, 1, 0.5)
-		op = camera.GetScale(op, 8*(p2.X-p1.X)/sideLength, 8)
-		op = camera.GetSkew(op, 0, p1.AngleTo(p2))
-		op = camera.GetTranslation(op, p1.X, p1.Y-float64(spriteScale*spriteSize))
-		camera.Surface.DrawImage(
+		op = cam.GetScale(op, 8*(p2.X-p1.X)/sideLength, 8)
+		op = cam.GetSkew(op, 0, p1.AngleTo(p2))
+		op = cam.GetTranslation(op, p1.X, p1.Y-float64(spriteScale*spriteSize))
+		cam.Surface.DrawImage(
 			sprites.SubImage(rect).(*ebiten.Image),
 			op)
 	}
@@ -138,15 +139,15 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	// top face of the cube
 	op = &ebiten.DrawImageOptions{}
 	op.ColorM.Scale(1, 1, 1, 0.5)
-	op = camera.GetRotation(op, rotation, -float64(spriteSize)/2, -float64(spriteSize)/2)
-	op = camera.GetScale(op, 8, 8)
-	op = camera.GetTranslation(op, x, y-float64(spriteScale*spriteSize))
-	camera.Surface.DrawImage(
+	op = cam.GetRotation(op, rotation, -float64(spriteSize)/2, -float64(spriteSize)/2)
+	op = cam.GetScale(op, 8, 8)
+	op = cam.GetTranslation(op, x, y-float64(spriteScale*spriteSize))
+	cam.Surface.DrawImage(
 		sprites.SubImage(
 			image.Rect(0, 0, spriteSize, spriteSize)).(*ebiten.Image),
 		op)
 
-	camera.Blit(screen)
+	cam.Blit(screen)
 
 	ebitenutil.DebugPrint(screen, fmt.Sprintf("Rotation: %0.1f", rotation))
 }
@@ -154,7 +155,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 // Layout sets window size
 func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
 	if LastWindowWidth != outsideWidth || LastWindowHeight != outsideHeight {
-		camera.Resize(outsideWidth, outsideHeight)
+		cam.Resize(outsideWidth, outsideHeight)
 		log.Println("resize", outsideWidth, outsideHeight)
 		LastWindowWidth = outsideWidth
 		LastWindowHeight = outsideHeight
@@ -168,7 +169,7 @@ func main() {
 	ebiten.SetWindowSize(w, h)
 	ebiten.SetWindowTitle("Spinning cube example")
 	ebiten.SetWindowResizable(true)
-	camera = ebitenCamera.NewCamera(w, h, 0, 0, 0, 1)
+	cam = camera.NewCamera(w, h, 0, 0, 0, 1)
 
 	if b, err := embedded.ReadFile("sprites.png"); err == nil {
 		if s, err := png.Decode(bytes.NewReader(b)); err == nil {
