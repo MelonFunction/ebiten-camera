@@ -30,30 +30,26 @@ func NewCamera(width, height int, x, y, rotation, zoom float64, op *ebiten.DrawI
 }
 
 // SetPosition looks at a position
-func (c *Camera) SetPosition(x, y float64) *Camera {
+func (c *Camera) SetPosition(x, y float64) {
 	c.X = x
 	c.Y = y
-	return c
 }
 
-// MovePosition moves the Camera by x and y.
+// Translate translates the Camera by x and y.
 // Use SetPosition if you want to set the position
-func (c *Camera) MovePosition(x, y float64) *Camera {
+func (c *Camera) Translate(x, y float64) {
 	c.X += x
 	c.Y += y
-	return c
 }
 
 // Rotate rotates by phi
-func (c *Camera) Rotate(phi float64) *Camera {
+func (c *Camera) Rotate(phi float64) {
 	c.Rot += phi
-	return c
 }
 
 // SetRotation sets the rotation to rot
-func (c *Camera) SetRotation(rot float64) *Camera {
+func (c *Camera) SetRotation(rot float64) {
 	c.Rot = rot
-	return c
 }
 
 // Zoom *= the current zoom
@@ -67,13 +63,13 @@ func (c *Camera) Zoom(mul float64) *Camera {
 }
 
 // SetZoom sets the zoom
-func (c *Camera) SetZoom(zoom float64) *Camera {
+func (c *Camera) SetZoom(zoom float64) {
+	c.Translate(float64(c.Width)/2, float64(c.Width)/2)
 	c.Scale = zoom
 	if c.Scale <= 0.01 {
 		c.Scale = 0.01
 	}
 	c.Resize(c.Width, c.Height)
-	return c
 }
 
 // Resize resizes the camera Surface
@@ -107,6 +103,7 @@ func (c *Camera) GetRotation(ops *ebiten.DrawImageOptions, rot, originX, originY
 
 // GetScale alters the provided *ebiten.DrawImageOptions' scale
 func (c *Camera) GetScale(ops *ebiten.DrawImageOptions, scaleX, scaleY float64) *ebiten.DrawImageOptions {
+
 	ops.GeoM.Scale(scaleX, scaleY)
 	return ops
 }
