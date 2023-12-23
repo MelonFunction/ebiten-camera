@@ -12,18 +12,20 @@ type Camera struct {
 	X, Y, Rot, Scale float64
 	Width, Height    int
 	Surface          *ebiten.Image
+	CamDrawOps       *ebiten.DrawImageOptions
 }
 
 // NewCamera returns a new Camera
-func NewCamera(width, height int, x, y, rotation, zoom float64) *Camera {
+func NewCamera(width, height int, x, y, rotation, zoom float64, op *ebiten.DrawImageOptions) *Camera {
 	return &Camera{
-		X:       x,
-		Y:       y,
-		Width:   width,
-		Height:  height,
-		Rot:     rotation,
-		Scale:   zoom,
-		Surface: ebiten.NewImage(width, height),
+		X:          x,
+		Y:          y,
+		Width:      width,
+		Height:     height,
+		Rot:        rotation,
+		Scale:      zoom,
+		Surface:    ebiten.NewImage(width, height),
+		CamDrawOps: op,
 	}
 }
 
@@ -90,8 +92,7 @@ func (c *Camera) Resize(w, h int) *Camera {
 // GetTranslation alters the provided *ebiten.DrawImageOptions' translation based on the given x,y offset and the
 // camera's position
 func (c *Camera) GetTranslation(ops *ebiten.DrawImageOptions, x, y float64) *ebiten.DrawImageOptions {
-	w, h := c.Surface.Size()
-	ops.GeoM.Translate(float64(w)/2, float64(h)/2)
+	ops.GeoM.Translate(float64(c.Width)/2.0, float64(c.Height)/2.0)
 	ops.GeoM.Translate(-c.X+x, -c.Y+y)
 	return ops
 }
@@ -118,45 +119,28 @@ func (c *Camera) GetSkew(ops *ebiten.DrawImageOptions, skewX, skewY float64) *eb
 
 // Blit draws the camera's surface to the screen and applies zoom
 func (c *Camera) Blit(screen *ebiten.Image) {
-	op := &ebiten.DrawImageOptions{}
-	w, h := c.Surface.Size()
-	cx := float64(w) / 2.0
-	cy := float64(h) / 2.0
-
-	op.GeoM.Translate(-cx, -cy)
-	op.GeoM.Scale(c.Scale, c.Scale)
-	op.GeoM.Rotate(c.Rot)
-	op.GeoM.Translate(cx*c.Scale, cy*c.Scale)
-
-	screen.DrawImage(c.Surface, op)
+	centerX := float64(c.Width) / 2.0
+	centerY := float64(c.Height) / 2.0
+	c.CamDrawOps.GeoM.Reset()
+	c.CamDrawOps.GeoM.Translate(-centerX, -centerY)
+	c.CamDrawOps.GeoM.Scale(c.Scale, c.Scale)
+	c.CamDrawOps.GeoM.Rotate(c.Rot)
+	c.CamDrawOps.GeoM.Translate(centerX*c.Scale, centerY*c.Scale)
+	screen.DrawImage(c.Surface, c.CamDrawOps)
 }
 
-// GetScreenCoords converts world coords into screen coords
-func (c *Camera) GetScreenCoords(x, y float64) (float64, float64) {
-	w, h := c.Width, c.Height
-	co := math.Cos(c.Rot)
-	si := math.Sin(c.Rot)
-
-	x, y = x-c.X, y-c.Y
-	x, y = co*x-si*y, si*x+co*y
-
-	return x*c.Scale + float64(w)/2, y*c.Scale + float64(h)/2
+// WorldToScreenCoords converts world coords into screen coords
+func (c *Camera) WorldToScreenCoords(worldX, worldY float64) (float64, float64) {
+	co, si := math.Cos(-c.Rot), math.Sin(-c.Rot)
+	worldX, worldY = worldX-c.X, worldY-c.Y
+	worldX, worldY = co*worldX-si*worldY, si*worldX+co*worldY
+	return worldX*c.Scale + float64(c.Width)/2.0, worldY*c.Scale + float64(c.Height)/2.0
 }
 
-// GetWorldCoords converts screen coords into world coords
-func (c *Camera) GetWorldCoords(x, y float64) (float64, float64) {
-	w, h := c.Width, c.Height
-	co := math.Cos(-c.Rot)
-	si := math.Sin(-c.Rot)
-
-	x, y = (x-float64(w)/2)/c.Scale, (y-float64(h)/2)/c.Scale
-	x, y = co*x-si*y, si*x+co*y
-
-	return x + c.X, y + c.Y
-}
-
-// GetCursorCoords converts cursor/screen coords into world coords
-func (c *Camera) GetCursorCoords() (float64, float64) {
-	cx, cy := ebiten.CursorPosition()
-	return c.GetWorldCoords(float64(cx), float64(cy))
+// ScreenToWorldCoords converts screen coords into world coords
+func (c *Camera) ScreenToWorldCoords(screenX, screenY float64) (float64, float64) {
+	co, si := math.Cos(-c.Rot), math.Sin(-c.Rot)
+	screenX, screenY = (screenX-float64(c.Width)/2.0)/c.Scale, (screenY-float64(c.Height)/2.0)/c.Scale
+	screenX, screenY = co*screenX-si*screenY, si*screenX+co*screenY
+	return screenX + c.X, screenY + c.Y
 }
